@@ -13,7 +13,7 @@ def do_pack():
     archive_path = os.path.join(versions_dir, filename)
     local(f"tar -cvzf {archive_path} web_static")
 
-    print(f"Packing web_static to {archive_path}")
+    print(f"web_static packed: {archive_path}")
     return archive_path
 
   except:
