@@ -17,5 +17,5 @@ def do_pack():
         print(f"web_static packed: {archive_path}")
         return archive_path
 
-    except:
+    except Exception:
         return None
