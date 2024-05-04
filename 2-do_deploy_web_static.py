@@ -7,6 +7,18 @@ from fabric.api import put, env, sudo
 env.hosts = ['54.236.41.47', '100.25.131.39']
 
 
+def do_pack():
+    """fab function"""
+
+    time = datetime.now()
+    archive = 'web_static_' + time.strftime("%Y%m%d%H%M%S") + '.' + 'tgz'
+    local('mkdir -p versions')
+    create = local(f'tar -cvzf versions/{archive} web_static')
+    if create is not None:
+        return archive
+    else:
+        return None
+
 def do_deploy(archive_path):
     """distributes an archive to the web servers"""
     if exists(archive_path) is False:
