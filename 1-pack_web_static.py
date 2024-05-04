@@ -1,17 +1,20 @@
 #!/usr/bin/python3
 """web static pack module"""
 from datetime import datetime
-from fabric.api import *
-
+from fabric.api import local
+import os
 
 def do_pack():
-    """fab function"""
+  try:
+    now = datetime.now()
+    filename = f"web_static_{now.strftime('%Y%m%d%H%M%S')}.tgz"
+    versions_dir = "versions"
+    os.makedirs(versions_dir, exist_ok=True)
+    archive_path = os.path.join(versions_dir, filename)
+    local(f"tar -cvzf {archive_path} web_static")
 
-    time = datetime.now()
-    archive = 'web_static_' + time.strftime("%Y%m%d%H%M%S") + '.' + 'tgz'
-    local('mkdir -p versions')
-    create = local(f'tar -cvzf versions/{archive} web_static')
-    if create is not None:
-        return archive
-    else:
-        return None
+    print(f"Packing web_static to {archive_path}")
+    return archive_path
+
+  except:
+    return None
