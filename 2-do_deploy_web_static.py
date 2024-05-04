@@ -20,8 +20,7 @@ def do_deploy(archive_path):
         run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
         run('rm -rf {}{}/web_static'.format(path, no_ext))
         run('rm -rf /data/web_static/current')
-        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        run('ln -s {}{}/data/web_static/current'.format(path, no_ext))
         return True
     except:
         return False
-
