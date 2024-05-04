@@ -1,58 +1,28 @@
 #!/usr/bin/python3
-"""web static deploy module """
-import os
-from datetime import datetime
-import fabric.api as fab
-
-fab.env.hosts = ["34.201.165.130", "34.224.62.173"]
+"""distributes an archive to the web servers"""
+from os.path import exists
+from fabric.api import put, run, env
 
 
-def do_pack():
-    """do pack fabric functioin"""
-    now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    archive_name = f"web_static_{now}.tgz"
-    versions_dir = "versions"
-    if not os.path.exists(versions_dir):
-        fab.local(f"mkdir {versions_dir}")
-    try:
-
-        fab.local(
-            "tar -czvf {} web_static/".format(
-                os.path.join(versions_dir, archive_name))
-        )
-        return os.path.join(versions_dir, archive_name)
-    except Exception:
-        return None
+env.hosts = ['54.236.41.47', '100.25.131.39']
 
 
 def do_deploy(archive_path):
-    """web static deploy"""
-    if not os.path.exists(archive_path):
+    """distributes an archive to the web servers"""
+    if exists(archive_path) is False:
         return False
     try:
-
-        file_name = archive_path.split("/")[-1]
-        file_name_dir = file_name.split(".")[0]
-        tmp_dir = "/tmp/{}".format(file_name)
-        extract_dir = "/data/web_static/releases/{}/".format(file_name_dir)
-
-        fab.put(archive_path, tmp_dir, use_sudo=True)
-
-        fab.sudo("mkdir -p {}".format(extract_dir))
-
-        fab.sudo("tar -xzf {} -C {}".format(tmp_dir, extract_dir))
-
-        fab.sudo("rm {}".format(tmp_dir))
-        d1 = "/data/web_static/releases/{}/web_static/*".format(file_name_dir)
-        d2 = "/data/web_static/releases/{}/".format(file_name_dir)
-        fab.sudo("mv {} {}".format(d1, d2))
-        fab.sudo(
-            "rm -rf /data/web_static/releases/{}/web_static".format(
-                file_name_dir))
-        l1 = "/data/web_static/releases/{}/".format(file_name_dir)
-        lc = "/data/web_static/current"
-        fab.sudo("rm -rf {}".format(lc))
-        fab.sudo("ln -s {} {}".format(l1, lc))
+        file_n = archive_path.split("/")[-1]
+        no_ext = file_n.split(".")[0]
+        path = "/data/web_static/releases/"
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
+        run('rm /tmp/{}'.format(file_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         return True
-    except Exception:
+    except:
         return False
