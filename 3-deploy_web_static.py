@@ -3,6 +3,7 @@
 from fabric.api import env, local, put, run
 from datetime import datetime
 from os.path import exists, isdir
+import os
 env.hosts = ['54.236.41.47', '100.25.131.39']
 
 
@@ -21,7 +22,7 @@ def do_pack():
 
 def do_deploy(archive_path):
     """distributes an archive to the web servers"""
-    if exists(archive_path) is False:
+    if not os.path.exists(archive_path):
         return False
     try:
         file_name = archive_path.split("/")[-1]
