@@ -10,42 +10,20 @@ env.hosts = ['54.236.41.47', '100.25.131.39']
 
 def do_deploy(archive_path):
     """Distributes an archive to the web servers"""
-    if not exists(archive_path):
+    if exists(archive_path) is False:
         return False
-
     try:
-        # Extract filename and directory for deployment
-        filename = archive_path.split("/")[-1]
-        no_ext = filename.split(".")[0]
-        deploy_dir = f"/data/web_static/releases/{no_ext}"
-
-        # Upload archive to temporary location
-        put(archive_path, f"/tmp/{filename}")
-
-        # Create release directory if it doesn't exist
-        sudo(f"mkdir -p {deploy_dir}")
-
-        # Uncompress archive to release directory
-        sudo(f"tar -xzf /tmp/{filename} -C {deploy_dir}")
-
-        # Remove uploaded archive
-        run(f"rm /tmp/{filename}")
-
-        # Move extracted files (avoiding nested structure)
-        source_dir = f"/data/web_static/releases/{no_ext}/web_static"
-        destination_dir = f"/data/web_static/releases/{no_ext}"
-        run(f"mv {source_dir}/* {destination_dir}/")
-
-        # Remove empty web_static directory from extracted archive
-        sudo(f"rm -rf /data/web_static/releases/{no_ext}/web_static")
-
-        # Remove existing symbolic link
-        sudo(f"rm -rf /data/web_static/current")
-
-        # Create new symbolic link to deployed version
-        sudo(f"ln -s {deploy_dir} /data/web_static/current")
-
+        file_n = archive_path.split("/")[-1]
+        no_ext = file_n.split(".")[0]
+        path = "/data/web_static/releases/"
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
+        run('rm /tmp/{}'.format(file_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         return True
-
     except:
         return False
